@@ -1,20 +1,22 @@
 'use client';
 
 import { Note } from '@/lib/types';
-import { COLORS } from '@/lib/utils';
+import { COLORS, getSizeClasses } from '@/lib/utils';
 
 interface PostitProps {
   note: Note;
+  totalCount: number;
   isDragging?: boolean;
 }
 
-export default function Postit({ note, isDragging = false }: PostitProps) {
+export default function Postit({ note, totalCount, isDragging = false }: PostitProps) {
   const colorClass = COLORS[note.color] || COLORS.yellow;
+  const sizeClasses = getSizeClasses(totalCount);
 
   return (
     <div
       className={`
-        absolute p-4 w-40 sm:w-48 min-h-[160px] sm:min-h-[180px]
+        absolute p-3 ${sizeClasses.container}
         ${colorClass}
         shadow-md hover:shadow-lg
         transition-all duration-200
@@ -28,10 +30,10 @@ export default function Postit({ note, isDragging = false }: PostitProps) {
       }}
     >
       <div className="flex flex-col h-full">
-        <p className="text-sm sm:text-base text-gray-800 mb-3 flex-grow whitespace-pre-wrap break-words">
+        <p className={`${sizeClasses.text} text-gray-800 mb-2 flex-grow whitespace-pre-wrap break-words line-clamp-6`}>
           {note.message}
         </p>
-        <div className="text-xs text-gray-600 font-medium text-right mt-auto">
+        <div className={`${sizeClasses.author} text-gray-600 font-medium text-right mt-auto`}>
           - {note.author}
         </div>
       </div>

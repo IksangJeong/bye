@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { Note } from '@/lib/types';
+import { rearrangeNotes } from '@/lib/utils';
 import DraggablePostit from './DraggablePostit';
 
 interface DraggableBoardProps {
@@ -25,7 +26,9 @@ export default function DraggableBoard({ target }: DraggableBoardProps) {
         }
 
         const data = await response.json();
-        setNotes(data);
+        // Rearrange on initial load
+        const arranged = rearrangeNotes(data);
+        setNotes(arranged);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -35,6 +38,15 @@ export default function DraggableBoard({ target }: DraggableBoardProps) {
 
     fetchNotes();
   }, [target]);
+
+  // Calculate dynamic height based on note count - must be before early returns
+  const boardHeight = useMemo(() => {
+    const count = notes.length;
+    if (count <= 10) return 'min-h-[600px] md:min-h-[800px]';
+    if (count <= 25) return 'min-h-[800px] md:min-h-[1000px]';
+    if (count <= 50) return 'min-h-[1000px] md:min-h-[1200px]';
+    return 'min-h-[1200px] md:min-h-[1400px]';
+  }, [notes.length]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
@@ -98,9 +110,14 @@ export default function DraggableBoard({ target }: DraggableBoardProps) {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="relative w-full min-h-[600px] sm:min-h-[800px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg overflow-hidden">
+      <div className={`
+        relative w-full ${boardHeight}
+        max-h-[80vh] md:max-h-none
+        overflow-y-auto md:overflow-hidden
+        bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg
+      `}>
         {notes.map((note) => (
-          <DraggablePostit key={note.id} note={note} />
+          <DraggablePostit key={note.id} note={note} totalCount={notes.length} />
         ))}
       </div>
     </DndContext>

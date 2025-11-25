@@ -3,18 +3,20 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Note } from '@/lib/types';
-import { COLORS } from '@/lib/utils';
+import { COLORS, getSizeClasses } from '@/lib/utils';
 
 interface DraggablePostitProps {
   note: Note;
+  totalCount: number;
 }
 
-export default function DraggablePostit({ note }: DraggablePostitProps) {
+export default function DraggablePostit({ note, totalCount }: DraggablePostitProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: note.id.toString(),
   });
 
   const colorClass = COLORS[note.color] || COLORS.yellow;
+  const sizeClasses = getSizeClasses(totalCount);
 
   const style = transform
     ? {
@@ -34,7 +36,7 @@ export default function DraggablePostit({ note }: DraggablePostitProps) {
       {...listeners}
       {...attributes}
       className={`
-        absolute p-4 w-40 sm:w-48 min-h-[160px] sm:min-h-[180px]
+        absolute p-3 ${sizeClasses.container}
         ${colorClass}
         shadow-md hover:shadow-lg
         transition-shadow duration-200
@@ -43,10 +45,10 @@ export default function DraggablePostit({ note }: DraggablePostitProps) {
       `}
     >
       <div className="flex flex-col h-full pointer-events-none">
-        <p className="text-sm sm:text-base text-gray-800 mb-3 flex-grow whitespace-pre-wrap break-words">
+        <p className={`${sizeClasses.text} text-gray-800 mb-2 flex-grow whitespace-pre-wrap break-words line-clamp-6`}>
           {note.message}
         </p>
-        <div className="text-xs text-gray-600 font-medium text-right mt-auto">
+        <div className={`${sizeClasses.author} text-gray-600 font-medium text-right mt-auto`}>
           - {note.author}
         </div>
       </div>
