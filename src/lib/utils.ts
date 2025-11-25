@@ -61,26 +61,28 @@ export function getSizeClasses(count: number) {
 export function rearrangeNotes(notes: Note[]): Note[] {
   if (notes.length === 0) return notes;
 
-  // Calculate optimal grid size
-  const gridSize = Math.ceil(Math.sqrt(notes.length * 1.2)); // 20% extra space
-  const cellWidth = 90 / gridSize; // Use 90% to leave margins
-  const cellHeight = 90 / gridSize;
+  // Calculate optimal grid size with more spacing
+  const gridSize = Math.ceil(Math.sqrt(notes.length * 1.5)); // 50% extra space for better distribution
+  const cellWidth = 85 / gridSize; // Use 85% to leave adequate margins
+  const cellHeight = 85 / gridSize;
 
   return notes.map((note, index) => {
     const row = Math.floor(index / gridSize);
     const col = index % gridSize;
 
     // Position in cell center with deterministic offset based on note ID
-    const centerX = col * cellWidth + cellWidth / 2;
-    const centerY = row * cellHeight + cellHeight / 2;
+    const centerX = col * cellWidth + cellWidth / 2 + 5; // Add 5% left margin
+    const centerY = row * cellHeight + cellHeight / 2 + 5; // Add 5% top margin
 
-    // Use note ID as seed for consistent positioning
-    const seed = note.id % 1000;
-    const offsetX = ((seed % 100) / 100 - 0.5) * cellWidth * 0.3;
-    const offsetY = ((Math.floor(seed / 100) % 100) / 100 - 0.5) * cellHeight * 0.3;
+    // Use note ID with better hashing for more varied positioning
+    const hash1 = (note.id * 2654435761) % 1000; // Multiplicative hash
+    const hash2 = (note.id * 2246822519) % 1000; // Different hash for Y offset
 
-    const pos_x = Math.max(2, Math.min(85, centerX + offsetX));
-    const pos_y = Math.max(2, Math.min(85, centerY + offsetY));
+    const offsetX = ((hash1 / 1000) - 0.5) * cellWidth * 0.4;
+    const offsetY = ((hash2 / 1000) - 0.5) * cellHeight * 0.4;
+
+    const pos_x = Math.max(3, Math.min(82, centerX + offsetX));
+    const pos_y = Math.max(3, Math.min(82, centerY + offsetY));
 
     return {
       ...note,
