@@ -70,15 +70,17 @@ export function rearrangeNotes(notes: Note[]): Note[] {
     const row = Math.floor(index / gridSize);
     const col = index % gridSize;
 
-    // Position in cell center with small random offset for natural look
+    // Position in cell center with deterministic offset based on note ID
     const centerX = col * cellWidth + cellWidth / 2;
     const centerY = row * cellHeight + cellHeight / 2;
 
-    const randomOffsetX = (Math.random() - 0.5) * cellWidth * 0.3;
-    const randomOffsetY = (Math.random() - 0.5) * cellHeight * 0.3;
+    // Use note ID as seed for consistent positioning
+    const seed = note.id % 1000;
+    const offsetX = ((seed % 100) / 100 - 0.5) * cellWidth * 0.3;
+    const offsetY = ((Math.floor(seed / 100) % 100) / 100 - 0.5) * cellHeight * 0.3;
 
-    const pos_x = Math.max(2, Math.min(85, centerX + randomOffsetX));
-    const pos_y = Math.max(2, Math.min(85, centerY + randomOffsetY));
+    const pos_x = Math.max(2, Math.min(85, centerX + offsetX));
+    const pos_y = Math.max(2, Math.min(85, centerY + offsetY));
 
     return {
       ...note,
